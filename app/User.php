@@ -50,9 +50,4 @@ class User extends Authenticatable
     {
         return $this->belongsToMany(Lot::class, 'trades');
     }
-
-    public function currenciesSelling()
-    {
-        return $this->belongsToMany(Currency::class, 'lots');
-    }
 }

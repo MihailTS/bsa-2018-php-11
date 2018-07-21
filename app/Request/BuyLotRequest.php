@@ -5,36 +5,31 @@ namespace App\Request;
 use App\Request\Contracts\BuyLotRequest as BuyLotRequestContract;
 use Illuminate\Foundation\Http\FormRequest;
 
-class BuyLotRequest extends FormRequest implements BuyLotRequestContract
+class BuyLotRequest implements BuyLotRequestContract
 {
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
-    public function rules()
+    private $userId;
+    private $lotId;
+    private $amount;
+
+    public function __construct($userId, $lotId, $amount)
     {
-        $amount = $this->getAmount();
-        $lotId = $this->getLotId();
-        return [
-            'lot_id'=>'required|exists:lots',
-            'user_id'=>"required|exists:users|user_can_buy:$lotId,$amount",
-            'amount'=>'required|numeric|min:1|max:999999.99',
-        ];
+        $this->userId = $userId;
+        $this->lotId = $lotId;
+        $this->amount = $amount;
     }
 
     public function getUserId() : int
     {
-        return (int) $this->get('user_id');
+        return (int) $this->userId;
     }
 
     public function getLotId() : int
     {
-        return (int) $this->get('lot_id');
+        return (int) $this->lotId;
     }
 
     public function getAmount() : float
     {
-        return (float) $this->get('amount');
+        return (float) $this->amount;
     }
 }

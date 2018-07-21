@@ -12,8 +12,7 @@ use App\Entity\{
     Lot, Money, Trade
 };
 use App\Request\Contracts\{ AddLotRequest, BuyLotRequest };
-use App\Response\Contracts\LotResponse as LotResponseContract;
-use App\Response\LotResponse;
+use App\Response\Contracts\LotResponse;
 use App\Exceptions\MarketException\{
     ActiveLotExistsException,
     IncorrectPriceException,
@@ -24,7 +23,9 @@ use App\Exceptions\MarketException\{
     BuyInactiveLotException,
     LotDoesNotExistException
 };
-use App\Validators\AddLotValidator;
+use App\Validators\Market\AddLotValidator;
+use App\Validators\Market\BuyLotValidator;
+
 use Mail;
 
 class MarketService implements MarketServiceContract
@@ -33,17 +34,20 @@ class MarketService implements MarketServiceContract
     private $tradeRepository;
     private $moneyRepository;
     private $userRepository;
-    private $lotResponse;
+    private $addLotValidator;
+    private $buyLotValidator;
 
     public function __construct(LotRepository $lotRepository, TradeRepository $tradeRepository,
                                 MoneyRepository $moneyRepository, UserRepository $userRepository,
-                                LotResponse $lotResponse)
+                                AddLotValidator $addLotValidator,BuyLotValidator $buyLotValidator)
     {
         $this->lotRepository = $lotRepository;
         $this->tradeRepository = $tradeRepository;
         $this->moneyRepository = $moneyRepository;
         $this->userRepository = $userRepository;
-        $this->lotResponse = $lotResponse;
+
+        $this->addLotValidator = $addLotValidator;
+        $this->buyLotValidator = $buyLotValidator;
     }
 
     /**
@@ -59,6 +63,7 @@ class MarketService implements MarketServiceContract
      */
     public function addLot(AddLotRequest $lotRequest) : Lot
     {
+        $this->addLotValidator->validate($lotRequest);
         $lot = new Lot;
         $lot->currency_id = $lotRequest->getCurrencyId();
         $lot->seller_id = $lotRequest->getSellerId();
@@ -83,6 +88,7 @@ class MarketService implements MarketServiceContract
      */
     public function buyLot(BuyLotRequest $lotRequest) : Trade
     {
+        $this->buyLotValidator->validate($lotRequest);
         $lotId = $lotRequest->getLotId();
         $userId = $lotRequest->getUserId();
         $amount = $lotRequest->getAmount();
@@ -114,15 +120,13 @@ class MarketService implements MarketServiceContract
      * Retrieves lot by an identifier and returns it in LotResponse format
      *
      * @param int $id
-     * 
-     * @throws LotDoesNotExistException
-     * 
+     *
      * @return LotResponse
      */
     public function getLot(int $id) : LotResponse
     {
         $lot = $this->lotRepository->getById($id);
-        return new LotResponse($lot);
+        return new App\Response\LotResponse($lot);
     }
 
     /**
@@ -133,6 +137,8 @@ class MarketService implements MarketServiceContract
     public function getLotList() : array
     {
         $lots = $this->lotRepository->findAll();
-        return array_map(function($lot){return new LotResponse($lot);},$lots);
+        return array_map(function($lot){
+            return new App\Response\LotResponse($lot);
+            },$lots);
     }
 }

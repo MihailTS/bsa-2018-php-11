@@ -5,33 +5,31 @@ namespace App\Request;
 use App\Request\Contracts\MoneyRequest as MoneyRequestContract;
 use Illuminate\Foundation\Http\FormRequest;
 
-class MoneyRequest extends FormRequest implements MoneyRequestContract
+class MoneyRequest implements MoneyRequestContract
 {
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
-    public function rules()
+    private $walletId;
+    private $currencyId;
+    private $amount;
+
+    public function __construct($walletId, $currencyId, $amount)
     {
-        return [
-            'wallet_id'=>'required|exists:wallets',
-            'currency_id'=>'required|exists:currencies',
-            'amount'=>'required|amount|min:0|max:999999.99',
-        ];
+        $this->walletId = $walletId;
+        $this->currencyId = $currencyId;
+        $this->amount = $amount;
     }
+
     public function getWalletId() : int
     {
-        return (int) $this->get('wallet_id');
+        return (int) $this->walletId;
     }
 
     public function getCurrencyId() : int
     {
-        return (int) $this->get('currency_id');
+        return (int) $this->currencyId;
     }
 
     public function getAmount() : float
     {
-        return (float) $this->get('amount');
+        return (float) $this->amount;
     }
 }

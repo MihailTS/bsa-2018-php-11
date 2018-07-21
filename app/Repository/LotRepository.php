@@ -35,4 +35,9 @@ class LotRepository implements LotRepositoryContract
     {
         return Lot::where('seller_id',$userId)->active()->first();
     }
+
+    public function findActiveLots(int $userId): array
+    {
+        return Lot::where('seller_id',$userId)->active()->get();
+    }
 }

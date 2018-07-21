@@ -18,4 +18,9 @@ class WalletRepository implements WalletRepositoryContract
     {
         return Wallet::where('user_id',$userId)->first();
     }
+
+    public function getById(int $id): ?Wallet
+    {
+        return Wallet::find($id);
+    }
 }

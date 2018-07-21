@@ -5,31 +5,26 @@ namespace App\Request;
 use App\Request\Contracts\AddLotRequest as AddLotRequestContract;
 use Illuminate\Foundation\Http\FormRequest;
 
-class AddLotRequest extends FormRequest implements AddLotRequestContract
+class AddLotRequest implements AddLotRequestContract
 {
+    private $currencyId;
+    private $sellerId;
+    private $dateTimeOpen;
+    private $dateTimeClose;
+    private $price;
 
-    /**
-     * Get the validation rules that apply to the request.
-     *
-     * @return array
-     */
-    public function rules()
+    public function __construct($currencyId, $sellerId, $dateTimeOpen ,$dateTimeClose, $price)
     {
-        $dateTimeOpen = $this->getDateTimeOpen();
-        $currencyId = $this->getCurrencyId();
-
-        return [
-            'currency_id'=>'required|exists:currencies',
-            'seller_id'=>"required|exists:users|user_has_not_active_lots:$currencyId",
-            'date_time_open'=>'required|integer|min:0',
-            'date_time_close'=>"required|integer|min:$dateTimeOpen",
-            'price'=>'required|numeric|min:0|max:999999.99',
-        ];
+        $this->currencyId = $currencyId;
+        $this->sellerId = $sellerId;
+        $this->dateTimeOpen = $dateTimeOpen;
+        $this->dateTimeClose = $dateTimeClose;
+        $this->price = $price;
     }
 
     public function getCurrencyId() : int
     {
-        return (int) $this->get('currency_id');
+        return (int) $this->currencyId;
     }
 
     /**
@@ -39,7 +34,7 @@ class AddLotRequest extends FormRequest implements AddLotRequestContract
      */
     public function getSellerId() : int
     {
-        return (int) $this->get('seller_id');
+        return (int) $this->sellerId;
     }
 
     /**
@@ -49,7 +44,7 @@ class AddLotRequest extends FormRequest implements AddLotRequestContract
      */
     public function getDateTimeOpen() : int
     {
-        return (int) $this->get('date_time_open');
+        return (int) $this->dateTimeOpen;
     }
 
     /**
@@ -59,12 +54,12 @@ class AddLotRequest extends FormRequest implements AddLotRequestContract
      */
     public function getDateTimeClose() : int
     {
-        return (int) $this->get('date_time_open');
+        return (int) $this->dateTimeClose;
     }
 
     public function getPrice() : float
     {
-        return (float) $this->get('price');
+        return (float) $this->price;
     }
 
 }

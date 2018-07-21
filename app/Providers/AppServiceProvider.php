@@ -2,9 +2,9 @@
 
 namespace App\Providers;
 
-use App\Validators\AddLotValidator;
-use App\Validators\BuyLotValidator;
-use App\Validators\CreateWalletValidator;
+use App\Validators\UserHasEnoughMoney;
+use App\Validators\UserHasNotActiveLotsWithCurrency;
+use App\Validators\UserHasNotWallet;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Schema;
 
@@ -51,22 +51,6 @@ class AppServiceProvider extends ServiceProvider
     public function boot()
     {
         Schema::defaultStringLength(191);
-
-        Validator::extend(
-            'user_has_not_active_lots',
-            AddLotValidator::class,
-            AddLotValidator::ERROR_MESSAGE
-        );
-        Validator::extend(
-            'user_can_buy',
-            BuyLotValidator::class,
-            BuyLotValidator::ERROR_MESSAGE
-        );
-        Validator::extend(
-            'has_not_wallet',
-            CreateWalletValidator::class,
-            CreateWalletValidator::ERROR_MESSAGE
-        );
     }
 
     /**

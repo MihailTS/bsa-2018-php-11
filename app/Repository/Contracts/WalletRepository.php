@@ -9,4 +9,6 @@ interface WalletRepository
     public function add(Wallet $wallet) : Wallet;
 
     public function findByUser(int $userId) : ?Wallet;
+
+    public function getById(int $id) : ?Wallet;
 }
