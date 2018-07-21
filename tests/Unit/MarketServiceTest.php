@@ -48,6 +48,12 @@ class MarketServiceTest extends TestCase
         $this->walletRepository = $this->createMock(WalletRepository::class);
         $this->moneyRepository = $this->createMock(MoneyRepository::class);
 
+        $this->lotRepository->method('add')->will($this->returnArgument(0));
+        $this->tradeRepository->method('add')->will($this->returnArgument(0));
+        $this->currencyRepository->method('add')->will($this->returnArgument(0));
+        $this->walletRepository->method('add')->will($this->returnArgument(0));
+        $this->moneyRepository->method('save')->will($this->returnArgument(0));
+
         $addLotValidator = new AddLotValidator(
           $this->currencyRepository,
           $this->userRepository,
@@ -81,22 +87,10 @@ class MarketServiceTest extends TestCase
         $this->assertEquals($currencyId,$lot->currency_id);
         $this->assertEquals($sellerId,$lot->seller_id);
         $this->assertEquals($dateTimeOpen,$lot->date_time_open);
-        $this->assertEquals($dateTimeClose,$lot->dateTimeClose);
+        $this->assertEquals($dateTimeClose,$lot->date_time_close);
         $this->assertEquals($price,$lot->price);
     }
 
-   /* public function getAddLotRequestMock($currencyId, $sellerId, $dateTimeOpen, $dateTimeClose, $price)
-    {
-
-        $request = $this->createMock(AddLotRequest::class);
-        $request->method('getCurrencyId')->willReturn($currencyId);
-        $request->method('getSellerId')->willReturn($sellerId);
-        $request->method('getDateTimeOpen')->willReturn($dateTimeOpen);
-        $request->method('getDateTimeClose')->willReturn($dateTimeClose);
-        $request->method('getPrice')->willReturn($price);
-
-        return $request;
-    }*/
     public function addLotDataProvider()
     {
         return [

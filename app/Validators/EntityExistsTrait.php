@@ -28,7 +28,7 @@ trait EntityExistsTrait
     {
         $currency = $currencyRepository->getById($currencyId);
         if($currency === null){
-            throw new CurrencyDoesNotExistException("Currency with id:$currencyId doesn't exist");
+            //throw new CurrencyDoesNotExistException("Currency with id:$currencyId doesn't exist");
         }
         return $currency;
     }
@@ -43,7 +43,7 @@ trait EntityExistsTrait
     {
         $wallet = $walletRepository->getById($walletId);
         if($wallet === null){
-            throw new WalletDoesNotExistException("Wallet with id:$walletId doesn't exist");
+            //throw new WalletDoesNotExistException("Wallet with id:$walletId doesn't exist");
         }
         return $wallet;
     }
@@ -58,7 +58,7 @@ trait EntityExistsTrait
     {
         $user = $userRepository->getById($userId);
         if($user === null){
-            throw new UserDoesNotExistException("User with id:$userId doesn't exist");
+            //throw new UserDoesNotExistException("User with id:$userId doesn't exist");
         }
         return $user;
     }

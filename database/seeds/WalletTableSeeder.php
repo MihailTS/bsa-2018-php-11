@@ -3,7 +3,7 @@
 use Illuminate\Database\Seeder;
 use Faker\Factory as Faker;
 use App\Entity\Wallet;
-use App\Entity\User;
+use App\User;
 
 class WalletTableSeeder extends Seeder
 {

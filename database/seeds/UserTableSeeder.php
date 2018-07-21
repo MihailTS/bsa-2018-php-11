@@ -2,7 +2,7 @@
 
 use Illuminate\Database\Seeder;
 use Faker\Factory as Faker;
-use App\Entity\User;
+use App\User;
 
 class UserTableSeeder extends Seeder
 {
