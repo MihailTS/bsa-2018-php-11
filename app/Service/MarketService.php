@@ -126,7 +126,7 @@ class MarketService implements MarketServiceContract
     public function getLot(int $id) : LotResponse
     {
         $lot = $this->lotRepository->getById($id);
-        return new App\Response\LotResponse($lot);
+        return new \App\Response\LotResponse($lot);
     }
 
     /**
@@ -138,7 +138,7 @@ class MarketService implements MarketServiceContract
     {
         $lots = $this->lotRepository->findAll();
         return array_map(function($lot){
-            return new App\Response\LotResponse($lot);
+            return new \App\Response\LotResponse($lot);
             },$lots);
     }
 }

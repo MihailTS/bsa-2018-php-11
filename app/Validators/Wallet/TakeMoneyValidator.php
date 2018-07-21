@@ -40,12 +40,12 @@ class TakeMoneyValidator
         $walletId = $request->getWalletId();
         $amount = $request->getAmount();
 
-        $currency = $this->getCurrencyOrFail($this->currencyRepository, $currencyId);
-        $this->getWalletOrFail($this->walletRepository, $walletId);
+        //$this->getCurrencyOrFail($this->currencyRepository, $currencyId);
+        //$this->getWalletOrFail($this->walletRepository, $walletId);
 
         $money = $this->moneyRepository->findByWalletAndCurrency($walletId,$currencyId);
         if($money === null || $money->amount < $amount){
-            throw new IncorrectWalletAmountException("In wallet with id:$walletId not enough \"$currency->name\" currency for this operation");
+            throw new IncorrectWalletAmountException("In wallet with id:$walletId not enough currency for this operation");
         }
         return true;
     }

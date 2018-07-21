@@ -57,7 +57,7 @@ class BuyLotValidator
             throw new IncorrectLotAmountException("Currency amount can't be less than 1");
         }
 
-        $this->getUserOrFail($this->userRepository, $userId);
+        //$this->getUserOrFail($this->userRepository, $userId);
         $lot = $this->getLotOrFail($this->lotRepository, $lotId);
 
 

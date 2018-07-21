@@ -31,8 +31,8 @@ class AddMoneyValidator
      */
     public function validate(MoneyRequest $request)
     {
-        $this->getCurrencyOrFail($this->currencyRepository, $request->getCurrencyId());
-        $this->getWalletOrFail($this->walletRepository, $request->getWalletId());
+        //$this->getCurrencyOrFail($this->currencyRepository, $request->getCurrencyId());
+        //$this->getWalletOrFail($this->walletRepository, $request->getWalletId());
 
         return true;
     }

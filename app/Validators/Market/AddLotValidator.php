@@ -54,14 +54,14 @@ class AddLotValidator
             throw new IncorrectTimeCloseException("Close datetime can't be before open");
         }
 
-        $currency = $this->getCurrencyOrFail($this->currencyRepository, $currencyId);
-        $this->getUserOrFail($this->userRepository, $sellerId);
+        //$this->getCurrencyOrFail($this->currencyRepository, $currencyId);
+        //$this->getUserOrFail($this->userRepository, $sellerId);
 
         $activeLots = $this->lotRepository->findActiveLots($sellerId);
         foreach($activeLots as $activeLot){
             if($activeLot->currency->id === $currencyId)
             {
-                throw new IncorrectLotAmountException("User already has active \"$currency->name\" currency lot");
+                throw new IncorrectLotAmountException("User already has active currency lot");
             }
         }
         return true;

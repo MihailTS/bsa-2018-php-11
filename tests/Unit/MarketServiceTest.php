@@ -4,6 +4,9 @@ namespace Tests\Unit;
 
 use App\Entity\Currency;
 use App\Entity\Lot;
+use App\Entity\Trade;
+use App\Exceptions\MarketException\IncorrectLotAmountException;
+use App\Exceptions\MarketException\IncorrectPriceException;
 use App\Validators\Market\AddLotValidator;
 use App\Validators\Market\BuyLotValidator;
 use Tests\TestCase;
@@ -81,8 +84,8 @@ class MarketServiceTest extends TestCase
     {
         $request = new AddLotRequest($currencyId, $sellerId, $dateTimeOpen, $dateTimeClose, $price);
 
-        //factory(Currency::class)->make();
         $lot = $this->marketService->addLot($request);
+
         $this->assertInstanceOf(Lot::class,$lot);
         $this->assertEquals($currencyId,$lot->currency_id);
         $this->assertEquals($sellerId,$lot->seller_id);
@@ -91,10 +94,61 @@ class MarketServiceTest extends TestCase
         $this->assertEquals($price,$lot->price);
     }
 
+    /**
+     * @dataProvider addLotDataProvider
+     */
+    public function test_add_lot_when_user_has_active($currencyId, $sellerId, $dateTimeOpen, $dateTimeClose, $price)
+    {
+
+        $this->expectException(IncorrectLotAmountException::class);
+        $request = new AddLotRequest($currencyId, $sellerId, $dateTimeOpen, $dateTimeClose, $price);
+        $lot = $this->marketService->addLot($request);
+
+        $this->lotRepository->method('findActiveLots')->willReturn([$lot]);
+        $this->marketService->addLot($request);
+    }
+
+
+    /**
+     * @dataProvider addLotDataProvider
+     */
+    public function test_add_lot_negative_price($currencyId, $sellerId, $dateTimeOpen, $dateTimeClose)
+    {
+        $price = -1;
+        $this->expectException(IncorrectPriceException::class);
+        $request = new AddLotRequest($currencyId, $sellerId, $dateTimeOpen, $dateTimeClose, $price);
+        $this->marketService->addLot($request);
+    }
+
+    /**
+     * @dataProvider addLotDataProvider
+     */
+    /*public function test_buy_lot($currencyId, $sellerId, $dateTimeOpen, $dateTimeClose, $price)
+    {
+        $userId = 1;
+        $lotId = 1;
+        $amount = 1;
+
+        $request = new BuyLotRequest($userId, $lotId, $amount);
+        $lot = factory(Lot::class)->make(['date_time_open'=>$dateTimeOpen,'date_time_close'=>$dateTimeClose]);
+
+        $this->lotRepository->method('findActiveLots')->willReturn([$lot]);
+
+        $this->lotRepository->method('getById')->willReturn($lot);
+
+        $trade = $this->marketService->buyLot($request);
+
+        $this->assertInstanceOf(Trade::class,$trade);
+        $this->assertEquals($userId,$trade->user_id);
+        $this->assertEquals($lotId,$trade->lot_id);
+        $this->assertEquals($amount,$trade->amount);
+    }*/
+
+
     public function addLotDataProvider()
     {
         return [
-            [1,1,0,1,1],
+            [1,1,Carbon::now()->addHour(-1)->timestamp,Carbon::now()->addHour(1)->timestamp,1],
         ];
     }
 }
