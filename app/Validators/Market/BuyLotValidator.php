@@ -66,6 +66,7 @@ class BuyLotValidator
 
         $wallet = $this->walletRepository->findByUser($sellerId);
         $money = $this->moneyRepository->findByWalletAndCurrency($wallet->id,$lot->currency_id);
+
         if($money === null || $money->amount < $amount)
         {
             throw new IncorrectLotAmountException("Not enough money in lot for this operation");

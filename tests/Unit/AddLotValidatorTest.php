@@ -25,7 +25,6 @@ class AddLotValidatorTest extends TestCase
         $this->lotRepository = $this->createMock(LotRepository::class);
 
         $this->addLotValidator = new AddLotValidator($this->lotRepository);
-        $this->lotRepository->method('add')->will($this->returnArgument(0));
 
     }
 
