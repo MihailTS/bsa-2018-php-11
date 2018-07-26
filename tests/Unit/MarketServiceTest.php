@@ -6,6 +6,7 @@ use App\Entity\Currency;
 use App\Entity\Lot;
 use App\Entity\Money;
 use App\Entity\Wallet;
+use App\Mail\TradeCreated;
 use App\Service\Contracts\WalletService;
 use App\User;
 use App\Validators\Market\AddLotValidator;
@@ -121,6 +122,8 @@ class MarketServiceTest extends TestCase
         $this->assertEquals($userId, $trade->user_id);
         $this->assertEquals($lotId, $trade->lot_id);
         $this->assertEquals($amount, $trade->amount);
+
+        Mail::assertSent(TradeCreated::class);
     }
 
     public function test_get_lot()
