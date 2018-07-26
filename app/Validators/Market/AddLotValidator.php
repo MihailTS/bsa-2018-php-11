@@ -2,30 +2,19 @@
 
 namespace App\Validators\Market;
 
-use App\Exceptions\MarketException\IncorrectLotAmountException;
+use App\Exceptions\MarketException\ActiveLotExistsException;
 use App\Exceptions\MarketException\IncorrectPriceException;
 use App\Exceptions\MarketException\IncorrectTimeCloseException;
-use App\Exceptions\MarketException\UserDoesNotExistException;
-use App\Exceptions\MarketException\CurrencyDoesNotExistException;
-use App\Repository\Contracts\CurrencyRepository;
 use App\Repository\Contracts\LotRepository;
-use App\Repository\Contracts\UserRepository;
 use App\Request\Contracts\AddLotRequest;
-use App\Validators\EntityExistsTrait;
 
 class AddLotValidator
 {
-    use EntityExistsTrait;
 
-    private $currencyRepository;
-    private $userRepository;
     private $lotRepository;
 
-    public function __construct(CurrencyRepository $currencyRepository,UserRepository $userRepository,
-                                LotRepository $lotRepository)
+    public function __construct(LotRepository $lotRepository)
     {
-        $this->currencyRepository = $currencyRepository;
-        $this->userRepository = $userRepository;
         $this->lotRepository = $lotRepository;
     }
 
@@ -34,9 +23,7 @@ class AddLotValidator
      * @return bool
      * @throws IncorrectPriceException
      * @throws IncorrectTimeCloseException
-     * @throws UserDoesNotExistException
-     * @throws CurrencyDoesNotExistException
-     * @throws IncorrectLotAmountException
+     * @throws ActiveLotExistsException
      */
     public function validate(AddLotRequest $request)
     {
@@ -54,14 +41,11 @@ class AddLotValidator
             throw new IncorrectTimeCloseException("Close datetime can't be before open");
         }
 
-        //$this->getCurrencyOrFail($this->currencyRepository, $currencyId);
-        //$this->getUserOrFail($this->userRepository, $sellerId);
-
         $activeLots = $this->lotRepository->findActiveLots($sellerId);
         foreach($activeLots as $activeLot){
-            if($activeLot->currency->id === $currencyId)
+            if($activeLot->currency_id === $currencyId)
             {
-                throw new IncorrectLotAmountException("User already has active currency lot");
+                throw new ActiveLotExistsException("User already has active currency lot");
             }
         }
         return true;

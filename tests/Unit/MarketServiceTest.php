@@ -1,13 +1,11 @@
 <?php
+
 namespace Tests\Unit;
+
 use App\Entity\Currency;
 use App\Entity\Lot;
 use App\Entity\Money;
-use App\Entity\Trade;
 use App\Entity\Wallet;
-use App\Exceptions\MarketException\IncorrectLotAmountException;
-use App\Exceptions\MarketException\IncorrectPriceException;
-use App\Mail\TradeCreated;
 use App\Service\Contracts\WalletService;
 use App\User;
 use App\Validators\Market\AddLotValidator;
@@ -25,6 +23,7 @@ use App\Service\MarketService;
 use App\Request\AddLotRequest;
 use App\Request\BuyLotRequest;
 use Carbon\Carbon;
+
 class MarketServiceTest extends TestCase
 {
     private $lotRepository;
@@ -58,7 +57,7 @@ class MarketServiceTest extends TestCase
         $this->walletService = $this->createMock(WalletService::class);
 
         $this->addLotValidator = $this->createMock(AddLotValidator::class);
-        $this->buyLotValidator =$this->createMock(BuyLotValidator::class);
+        $this->buyLotValidator = $this->createMock(BuyLotValidator::class);
 
         $this->marketService = new MarketService(
             $this->lotRepository,
@@ -73,6 +72,7 @@ class MarketServiceTest extends TestCase
         );
 
     }
+
     public function test_add_lot()
     {
         $currencyId = 1;
@@ -86,14 +86,15 @@ class MarketServiceTest extends TestCase
 
         $lot = $this->marketService->addLot($request);
 
-        $this->assertEquals($currencyId,$lot->currency_id);
-        $this->assertEquals($sellerId,$lot->seller_id);
-        $this->assertEquals($dateTimeOpen,$lot->date_time_open);
-        $this->assertEquals($dateTimeClose,$lot->date_time_close);
-        $this->assertEquals($price,$lot->price);
+        $this->assertEquals($currencyId, $lot->currency_id);
+        $this->assertEquals($sellerId, $lot->seller_id);
+        $this->assertEquals($dateTimeOpen, $lot->date_time_open);
+        $this->assertEquals($dateTimeClose, $lot->date_time_close);
+        $this->assertEquals($price, $lot->price);
     }
 
-    public function test_buy_lot(){
+    public function test_buy_lot()
+    {
         Mail::fake();
 
         $userId = 1;
@@ -101,8 +102,8 @@ class MarketServiceTest extends TestCase
         $amount = 99.99;
 
         $this->buyLotValidator->expects($this->once())->method('validate');
-        $buyer = factory(User::class)->make(['id'=>$userId]);
-        $lot = factory(Lot::class)->make(['id'=>$lotId]);
+        $buyer = factory(User::class)->make(['id' => $userId]);
+        $lot = factory(Lot::class)->make(['id' => $lotId]);
         $wallet = factory(Wallet::class)->make();
         $currency = factory(Currency::class)->make();
 
@@ -111,22 +112,23 @@ class MarketServiceTest extends TestCase
         $this->walletRepository->method('findByUser')->willReturn($wallet);
         $this->currencyRepository->method('getById')->willReturn($currency);
         $this->moneyRepository->method('findByWalletAndCurrency')->willReturn(
-            factory(Money::class)->make(['wallet_id'=>1,'currency_id'=>1])
+            factory(Money::class)->make(['wallet_id' => 1, 'currency_id' => 1])
         );
 
         $request = new BuyLotRequest($userId, $lotId, $amount);
         $trade = $this->marketService->buyLot($request);
 
-        $this->assertEquals($userId,$trade->user_id);
-        $this->assertEquals($lotId,$trade->lot_id);
-        $this->assertEquals($amount,$trade->amount);
+        $this->assertEquals($userId, $trade->user_id);
+        $this->assertEquals($lotId, $trade->lot_id);
+        $this->assertEquals($amount, $trade->amount);
     }
 
-    public function test_get_lot(){
-        $lot = factory(Lot::class)->make(['id'=>1]);
+    public function test_get_lot()
+    {
+        $lot = factory(Lot::class)->make(['id' => 1]);
         $user = factory(User::class)->make();
         $currency = factory(Currency::class)->make();
-        $wallet = factory(Wallet::class)->make(['id'=>1]);
+        $wallet = factory(Wallet::class)->make(['id' => 1]);
         $money = factory(Money::class)->make();
 
         $this->lotRepository->method('getById')->willReturn($lot);
@@ -136,10 +138,10 @@ class MarketServiceTest extends TestCase
         $this->moneyRepository->method('findByWalletAndCurrency')->willReturn($money);
 
         $lotResponse = $this->marketService->getLot(1);
-        $this->assertEquals($lotResponse->getId(),$lot->id);
-        $this->assertEquals($lotResponse->getUserName(),$user->name);
-        $this->assertEquals($lotResponse->getCurrencyName(),$currency->name);
-        $this->assertEquals($lotResponse->getAmount(),$money->amount);
+        $this->assertEquals($lotResponse->getId(), $lot->id);
+        $this->assertEquals($lotResponse->getUserName(), $user->name);
+        $this->assertEquals($lotResponse->getCurrencyName(), $currency->name);
+        $this->assertEquals($lotResponse->getAmount(), $money->amount);
         $this->assertEquals(
             $lotResponse->getDateTimeOpen(),
             Carbon::createFromTimestamp($lot->date_time_open)->format('Y/m/d h:i:s')
@@ -152,5 +154,20 @@ class MarketServiceTest extends TestCase
             $lotResponse->getPrice(),
             number_format($lot->price, 2, ',', '')
         );
+    }
+
+    public function test_get_lot_list()
+    {
+        $lots = [];
+        for ($i = 0; $i < 5; $i++) {
+            $lots[] = factory(Lot::class)->make(['id'=>$i]);
+        }
+        $this->lotRepository->method('findAll')->willReturn($lots);
+
+        $lotsFromService = $this->marketService->getLotList();
+        foreach ($lots as $key => $lot) {
+            $lotResponse = $lotsFromService[$key];
+            $this->assertEquals($lotResponse->getId(), $lot->id);
+        }
     }
 }

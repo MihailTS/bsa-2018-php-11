@@ -6,19 +6,15 @@ use App\Exceptions\MarketException\BuyInactiveLotException;
 use App\Exceptions\MarketException\BuyNegativeAmountException;
 use App\Exceptions\MarketException\BuyOwnCurrencyException;
 use App\Exceptions\MarketException\IncorrectLotAmountException;
-use App\Exceptions\MarketException\UserDoesNotExistException;
-use App\Exceptions\MarketException\WalletDoesNotExistException;
+use App\Exceptions\MarketException\LotDoesNotExistException;
 use App\Repository\Contracts\LotRepository;
 use App\Repository\Contracts\MoneyRepository;
 use App\Repository\Contracts\UserRepository;
 use App\Repository\Contracts\WalletRepository;
 use App\Request\Contracts\BuyLotRequest;
-use App\Validators\EntityExistsTrait;
 
 class BuyLotValidator
 {
-    use EntityExistsTrait;
-
     private $userRepository;
     private $lotRepository;
     private $walletRepository;
@@ -36,10 +32,8 @@ class BuyLotValidator
     /**
      * @param BuyLotRequest $request
      * @return bool
-     * @throws UserDoesNotExistException
      * @throws BuyNegativeAmountException
      * @throws IncorrectLotAmountException
-     * @throws WalletDoesNotExistException
      * @throws BuyOwnCurrencyException
      * @throws BuyInactiveLotException
      */
@@ -57,7 +51,6 @@ class BuyLotValidator
             throw new IncorrectLotAmountException("Currency amount can't be less than 1");
         }
 
-        //$this->getUserOrFail($this->userRepository, $userId);
         $lot = $this->getLotOrFail($this->lotRepository, $lotId);
 
 
@@ -72,10 +65,6 @@ class BuyLotValidator
         }
 
         $wallet = $this->walletRepository->findByUser($sellerId);
-        if($wallet === null)
-        {
-            throw new WalletDoesNotExistException("User with id:$userId hasn't wallet");
-        }
         $money = $this->moneyRepository->findByWalletAndCurrency($wallet->id,$lot->currency_id);
         if($money === null || $money->amount < $amount)
         {
@@ -83,6 +72,15 @@ class BuyLotValidator
         }
 
         return true;
+    }
+
+    private function getLotOrFail(LotRepository $lotRepository,int $lotId)
+    {
+        $lot = $lotRepository->getById($lotId);
+        if($lot === null){
+            throw new LotDoesNotExistException("Lot with id:$lotId doesn't exist");
+        }
+        return $lot;
     }
 
 }
