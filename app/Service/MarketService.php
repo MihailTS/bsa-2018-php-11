@@ -3,16 +3,21 @@
 namespace App\Service;
 
 use App\Mail\TradeCreated;
+use App\Repository\Contracts\CurrencyRepository;
 use App\Repository\Contracts\LotRepository;
 use App\Repository\Contracts\TradeRepository;
 use App\Repository\Contracts\UserRepository;
 use App\Repository\Contracts\MoneyRepository;
+use App\Repository\Contracts\WalletRepository;
+use App\Request\MoneyRequest;
+use App\Service\Contracts\WalletService;
 use App\Service\Contracts\MarketService as MarketServiceContract;
 use App\Entity\{
     Lot, Money, Trade
 };
 use App\Request\Contracts\{ AddLotRequest, BuyLotRequest };
-use App\Response\Contracts\LotResponse;
+use App\Response\Contracts\LotResponse as LotResponseContract;
+use App\Response\LotResponse;
 use App\Exceptions\MarketException\{
     ActiveLotExistsException,
     IncorrectPriceException,
@@ -25,26 +30,34 @@ use App\Exceptions\MarketException\{
 };
 use App\Validators\Market\AddLotValidator;
 use App\Validators\Market\BuyLotValidator;
-
 use Mail;
 
 class MarketService implements MarketServiceContract
 {
     private $lotRepository;
     private $tradeRepository;
-    private $moneyRepository;
     private $userRepository;
     private $addLotValidator;
     private $buyLotValidator;
+    private $walletRepository;
+    private $currencyRepository;
+    private $walletService;
+    private $moneyRepository;
 
     public function __construct(LotRepository $lotRepository, TradeRepository $tradeRepository,
-                                MoneyRepository $moneyRepository, UserRepository $userRepository,
+                                WalletRepository $walletRepository, UserRepository $userRepository,
+                                CurrencyRepository $currencyRepository,MoneyRepository $moneyRepository,
+                                WalletService $walletService,
                                 AddLotValidator $addLotValidator,BuyLotValidator $buyLotValidator)
     {
         $this->lotRepository = $lotRepository;
         $this->tradeRepository = $tradeRepository;
-        $this->moneyRepository = $moneyRepository;
         $this->userRepository = $userRepository;
+        $this->walletRepository = $walletRepository;
+        $this->currencyRepository = $currencyRepository;
+        $this->moneyRepository = $moneyRepository;
+
+        $this->walletService = $walletService;
 
         $this->addLotValidator = $addLotValidator;
         $this->buyLotValidator = $buyLotValidator;
@@ -93,7 +106,6 @@ class MarketService implements MarketServiceContract
         $userId = $lotRequest->getUserId();
         $amount = $lotRequest->getAmount();
 
-        $buyer = $this->userRepository->getById($userId);
 
         $trade = new Trade;
         $trade->lot_id = $lotId;
@@ -102,15 +114,19 @@ class MarketService implements MarketServiceContract
 
         $lot = $this->lotRepository->getById($lotId);
 
-        $sellerMoney = $this->moneyRepository->findByWalletAndCurrency($lot->seller->wallet->id,$lot->currency_id);
-        $sellerMoney->amount-=$amount;
-        $this->moneyRepository->save($sellerMoney);
+        $sellerWallet = $this->walletRepository->findByUser($lot->seller_id);
+        $this->walletService->takeMoney(new MoneyRequest($sellerWallet->id,$lot->currency_id,$amount));
 
-        $buyerMoney = $this->moneyRepository->findByWalletAndCurrency($buyer->wallet->id,$lot->currency_id);
-        $buyerMoney->amount-=$amount;
-        $this->moneyRepository->save($buyerMoney);
 
-        $rateChangedMessage = new TradeCreated($trade);
+        $buyerWallet = $this->walletRepository->findByUser($userId);
+        $this->walletService->addMoney(new MoneyRequest($buyerWallet->id,$lot->currency_id,$amount));
+
+
+        $buyer = $this->userRepository->getById($userId);
+        $seller = $this->userRepository->getById($lot->seller_id);
+        $currency = $this->currencyRepository->getById($lot->currency_id);
+        $rateChangedMessage = new TradeCreated($trade, $seller, $buyer, $currency);
+
         Mail::to($lot->seller)->send($rateChangedMessage->build());
 
         return $this->tradeRepository->add($trade);
@@ -121,12 +137,18 @@ class MarketService implements MarketServiceContract
      *
      * @param int $id
      *
-     * @return LotResponse
+     * @return LotResponseContract
      */
-    public function getLot(int $id) : LotResponse
+    public function getLot(int $id) : LotResponseContract
     {
         $lot = $this->lotRepository->getById($id);
-        return new \App\Response\LotResponse($lot);
+        return new LotResponse(
+            $this->moneyRepository,
+            $this->walletRepository,
+            $this->currencyRepository,
+            $this->userRepository,
+            $lot
+        );
     }
 
     /**
@@ -137,8 +159,17 @@ class MarketService implements MarketServiceContract
     public function getLotList() : array
     {
         $lots = $this->lotRepository->findAll();
-        return array_map(function($lot){
-            return new \App\Response\LotResponse($lot);
-            },$lots);
+        return array_map(
+                function($lot){
+                    return new LotResponse(
+                        $this->moneyRepository,
+                        $this->walletRepository,
+                        $this->currencyRepository,
+                        $this->userRepository,
+                        $lot
+                    );
+                },
+                $lots
+        );
     }
 }

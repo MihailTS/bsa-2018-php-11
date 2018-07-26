@@ -39,6 +39,10 @@ use App\Service\Contracts\MarketService as MarketServiceContract;
 use App\Service\MarketService;
 use App\Service\Contracts\WalletService as WalletServiceContract;
 use App\Service\WalletService;
+
+use App\Response\LotResponse;
+use App\Response\Contracts\LotResponse as LotResponseContract;
+
 use Validator;
 
 class AppServiceProvider extends ServiceProvider
@@ -77,5 +81,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(CurrencyServiceContract::class, CurrencyService::class);
         $this->app->bind(MarketServiceContract::class, MarketService::class);
         $this->app->bind(WalletServiceContract::class, WalletService::class);
+
+        $this->app->bind(LotResponseContract::class, LotResponse::class);
     }
 }

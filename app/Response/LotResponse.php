@@ -2,6 +2,10 @@
 
 namespace App\Response;
 
+use App\Repository\Contracts\MoneyRepository;
+use App\Repository\Contracts\UserRepository;
+use App\Repository\Contracts\WalletRepository;
+use App\Repository\Contracts\CurrencyRepository;
 use App\Response\Contracts\LotResponse as LotResponseContract;
 use App\Entity\Lot;
 use Carbon\Carbon;
@@ -9,10 +13,20 @@ use Response;
 
 class LotResponse extends Response implements LotResponseContract
 {
+    private $moneyRepository;
+    private $walletRepository;
+    private $currencyRepository;
+    private $userRepository;
     private $lot;
-
-    public function __construct(Lot $lot)
+    
+    public function __construct(MoneyRepository $moneyRepository, WalletRepository $walletRepository,
+                                CurrencyRepository $currencyRepository, UserRepository $userRepository,
+                                Lot $lot)
     {
+        $this->moneyRepository = $moneyRepository;
+        $this->walletRepository = $walletRepository;
+        $this->currencyRepository = $currencyRepository;
+        $this->userRepository = $userRepository;
         $this->lot = $lot;
     }
 
@@ -28,12 +42,12 @@ class LotResponse extends Response implements LotResponseContract
 
     public function getUserName(): string
     {
-        return $this->lot->seller->name;
+        return $this->userRepository->getById($this->lot->seller_id)->name;
     }
 
     public function getCurrencyName(): string
     {
-        return $this->lot->currency->name;
+        return $this->currencyRepository->getById($this->lot->currency_id)->name;
     }
 
     /*
@@ -43,7 +57,9 @@ class LotResponse extends Response implements LotResponseContract
     */
     public function getAmount(): float
     {
-        return $this->lot->seller->wallet->amount;
+        $wallet = $this->walletRepository->findByUser($this->lot->seller_id);
+        $money = $this->moneyRepository->findByWalletAndCurrency($wallet->id,$this->lot->currency_id);
+        return $money->amount;
     }
 
     /*
@@ -53,7 +69,7 @@ class LotResponse extends Response implements LotResponseContract
     */
     public function getDateTimeOpen(): string
     {
-        return Carbon::createFromTimestamp($this->lot->date_time_open)->format('Y/m/d');
+        return Carbon::createFromTimestamp($this->lot->date_time_open)->format('Y/m/d h:i:s');
     }
 
     /*
@@ -63,7 +79,7 @@ class LotResponse extends Response implements LotResponseContract
     */
     public function getDateTimeClose(): string
     {
-        return Carbon::createFromTimestamp($this->lot->date_time_close)->format('Y/m/d');
+        return Carbon::createFromTimestamp($this->lot->date_time_close)->format('Y/m/d h:i:s');
     }
 
     /**
