@@ -42,6 +42,6 @@ class CurrencyRepository implements CurrencyRepositoryContract
      */
     public function findAll()
     {
-        return Currency::all();
+        return Currency::all()->all();
     }
 }

@@ -60,7 +60,7 @@ class BuyLotValidator
         }
 
         $currentTimeStamp = now()->timestamp;
-        if ($currentTimeStamp > $lot->date_time_close || $currentTimeStamp < $lot->date_time_open) {
+        if ($currentTimeStamp > $lot->date_time_close->timestamp || $currentTimeStamp < $lot->date_time_open->timestamp) {
             throw new BuyInactiveLotException("Lot $lotId isn't active");
         }
 

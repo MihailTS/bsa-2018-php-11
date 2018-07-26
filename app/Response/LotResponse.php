@@ -59,6 +59,9 @@ class LotResponse extends Response implements LotResponseContract
     {
         $wallet = $this->walletRepository->findByUser($this->lot->seller_id);
         $money = $this->moneyRepository->findByWalletAndCurrency($wallet->id,$this->lot->currency_id);
+        if($money === null){
+            return 0;
+        }
         return $money->amount;
     }
 
@@ -69,7 +72,7 @@ class LotResponse extends Response implements LotResponseContract
     */
     public function getDateTimeOpen(): string
     {
-        return Carbon::createFromTimestamp($this->lot->date_time_open)->format('Y/m/d h:i:s');
+        return $this->lot->date_time_open->format('Y/m/d h:i:s');
     }
 
     /*
@@ -79,7 +82,7 @@ class LotResponse extends Response implements LotResponseContract
     */
     public function getDateTimeClose(): string
     {
-        return Carbon::createFromTimestamp($this->lot->date_time_close)->format('Y/m/d h:i:s');
+        return $this->lot->date_time_close->format('Y/m/d h:i:s');
     }
 
     /**
@@ -92,5 +95,18 @@ class LotResponse extends Response implements LotResponseContract
     public function getPrice(): string
     {
         return number_format($this->lot->price, 2, ',', '');
+    }
+
+    public static function toArray(LotResponseContract $lotResponse): array
+    {
+        return [
+            'id' => $lotResponse->getId(),
+            'user_name' => $lotResponse->getUserName(),
+            'currency_name' => $lotResponse->getCurrencyName(),
+            'amount' => $lotResponse->getAmount(),
+            'date_time_open' => $lotResponse->getDateTimeOpen(),
+            'date_time_close' => $lotResponse->getDateTimeClose(),
+            'price' => $lotResponse->getPrice(),
+        ];
     }
 }

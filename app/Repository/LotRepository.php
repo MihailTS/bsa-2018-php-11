@@ -28,7 +28,7 @@ class LotRepository implements LotRepositoryContract
     }
 
     public function findAll(){
-        return Lot::all();
+        return Lot::all()->all();
     }
 
     public function findActiveLot(int $userId): ?Lot
@@ -38,6 +38,6 @@ class LotRepository implements LotRepositoryContract
 
     public function findActiveLots(int $userId): array
     {
-        return Lot::where('seller_id',$userId)->active()->get();
+        return Lot::where('seller_id',$userId)->active()->get()->all();
     }
 }

@@ -89,8 +89,8 @@ class MarketServiceTest extends TestCase
 
         $this->assertEquals($currencyId, $lot->currency_id);
         $this->assertEquals($sellerId, $lot->seller_id);
-        $this->assertEquals($dateTimeOpen, $lot->date_time_open);
-        $this->assertEquals($dateTimeClose, $lot->date_time_close);
+        $this->assertEquals($dateTimeOpen, $lot->date_time_open->timestamp);
+        $this->assertEquals($dateTimeClose, $lot->date_time_close->timestamp);
         $this->assertEquals($price, $lot->price);
     }
 
@@ -147,11 +147,11 @@ class MarketServiceTest extends TestCase
         $this->assertEquals($lotResponse->getAmount(), $money->amount);
         $this->assertEquals(
             $lotResponse->getDateTimeOpen(),
-            Carbon::createFromTimestamp($lot->date_time_open)->format('Y/m/d h:i:s')
+            $lot->date_time_open->format('Y/m/d h:i:s')
         );
         $this->assertEquals(
             $lotResponse->getDateTimeClose(),
-            Carbon::createFromTimestamp($lot->date_time_close)->format('Y/m/d h:i:s')
+            $lot->date_time_close->format('Y/m/d h:i:s')
         );
         $this->assertEquals(
             $lotResponse->getPrice(),

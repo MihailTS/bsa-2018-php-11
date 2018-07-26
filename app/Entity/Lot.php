@@ -17,9 +17,13 @@ class Lot extends Model
         'price'
     ];
 
+    protected $dates = [
+        'date_time_open',
+        'date_time_close'
+    ];
     public function scopeActive($query)
     {
-        return $query->where('date_time_open','<',now()->timestamp)->where('date_time_close','>',now()->timestamp);
+        return $query->where('date_time_open','<',now())->where('date_time_close','>',now());
     }
 
     public function getDateTimeOpen(): int
