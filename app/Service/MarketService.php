@@ -127,7 +127,7 @@ class MarketService implements MarketServiceContract
         $currency = $this->currencyRepository->getById($lot->currency_id);
         $rateChangedMessage = new TradeCreated($trade, $seller, $buyer, $currency);
 
-        Mail::to($lot->seller)->send($rateChangedMessage->build());
+        Mail::to($seller)->send($rateChangedMessage->build());
 
         return $this->tradeRepository->add($trade);
     }

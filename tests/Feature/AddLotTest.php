@@ -3,15 +3,15 @@
 namespace Tests\Feature;
 
 use App\Entity\Currency;
-use App\Entity\Wallet;
 use App\User;
 use Carbon\Carbon;
 use Tests\TestCase;
-use Illuminate\Foundation\Testing\WithFaker;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
 class AddLotTest extends TestCase
 {
+    use RefreshDatabase;
+
     public function test_add_lot_valid()
     {
         $user = factory(User::class)->create();
