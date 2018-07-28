@@ -14,7 +14,7 @@ use Faker\Generator as Faker;
 */
 
 $factory->define(App\Entity\Lot::class, function (Faker $faker) {
-    $open = $faker->randomNumber(6);
+    $open = now()->timestamp;
     return [
         'currency_id' => 1,
         'seller_id' => 2,
