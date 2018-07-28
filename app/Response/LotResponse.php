@@ -72,7 +72,7 @@ class LotResponse extends Response implements LotResponseContract
     */
     public function getDateTimeOpen(): string
     {
-        return $this->lot->date_time_open->format('Y/m/d h:i:s');
+        return $this->lot->date_time_open->format('Y/m/d H:i:s');
     }
 
     /*
@@ -82,7 +82,7 @@ class LotResponse extends Response implements LotResponseContract
     */
     public function getDateTimeClose(): string
     {
-        return $this->lot->date_time_close->format('Y/m/d h:i:s');
+        return $this->lot->date_time_close->format('Y/m/d H:i:s');
     }
 
     /**
@@ -97,16 +97,23 @@ class LotResponse extends Response implements LotResponseContract
         return number_format($this->lot->price, 2, ',', '');
     }
 
-    public static function toArray(LotResponseContract $lotResponse): array
+    public static function toArray(LotResponseContract $lotResponse, ?bool $shortNames=false): array
     {
-        return [
+        $response = [
             'id' => $lotResponse->getId(),
-            'user_name' => $lotResponse->getUserName(),
-            'currency_name' => $lotResponse->getCurrencyName(),
             'amount' => $lotResponse->getAmount(),
             'date_time_open' => $lotResponse->getDateTimeOpen(),
             'date_time_close' => $lotResponse->getDateTimeClose(),
             'price' => $lotResponse->getPrice(),
         ];
+        if(!$shortNames){
+            $response['user_name'] = $lotResponse->getUserName();
+            $response['currency_name'] =  $lotResponse->getCurrencyName();
+        }else{
+            $response['user'] = $lotResponse->getUserName();
+            $response['currency'] = $lotResponse->getCurrencyName();
+        }
+
+        return $response;
     }
 }

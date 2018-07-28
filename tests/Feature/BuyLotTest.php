@@ -193,4 +193,25 @@ class BuyLotTest extends TestCase
                 ]
             );
     }
+
+
+    public function test_buy_lot_unauthenticated()
+    {
+        $response = $this->json('POST','/api/v1/trades',[
+                'lot_id' => 1,
+                'amount' => 1,
+            ]);
+
+        $response
+            ->assertStatus(403)
+            ->assertHeader('Content-Type', 'application/json')
+            ->assertJson(
+                [
+                    "error" => [
+                        "message" => "Unauthenticated.",
+                        "code" => 403
+                    ]
+                ]
+            );
+    }
 }

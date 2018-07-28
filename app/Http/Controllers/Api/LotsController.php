@@ -31,7 +31,7 @@ class LotsController extends Controller
         $lotsResponses = $this->marketService->getLotList();
         $lots = array_map(
             function($lotResponse){
-               return LotResponse::toArray($lotResponse);
+               return LotResponse::toArray($lotResponse,true);
             },
             $lotsResponses
         );

@@ -147,11 +147,11 @@ class MarketServiceTest extends TestCase
         $this->assertEquals($lotResponse->getAmount(), $money->amount);
         $this->assertEquals(
             $lotResponse->getDateTimeOpen(),
-            $lot->date_time_open->format('Y/m/d h:i:s')
+            $lot->date_time_open->format('Y/m/d H:i:s')
         );
         $this->assertEquals(
             $lotResponse->getDateTimeClose(),
-            $lot->date_time_close->format('Y/m/d h:i:s')
+            $lot->date_time_close->format('Y/m/d H:i:s')
         );
         $this->assertEquals(
             $lotResponse->getPrice(),
