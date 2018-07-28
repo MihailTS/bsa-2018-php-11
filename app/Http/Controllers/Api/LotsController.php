@@ -6,6 +6,7 @@ use App\Http\Requests\Lots\StoreLotRequest;
 use App\Request\AddLotRequest;
 use App\Response\LotResponse;
 use App\Service\Contracts\MarketService;
+use Auth;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
 
@@ -16,6 +17,7 @@ class LotsController extends Controller
 
     public function __construct(MarketService $marketService)
     {
+        $this->middleware('auth');
         $this->marketService = $marketService;
     }
 
@@ -47,7 +49,7 @@ class LotsController extends Controller
     {
         $addLotRequest = new AddLotRequest(
             $request->getCurrencyId(),
-            $request->getSellerId(),
+            Auth::user()->id,
             $request->getDateTimeOpen(),
             $request->getDateTimeClose(),
             $request->getPrice()

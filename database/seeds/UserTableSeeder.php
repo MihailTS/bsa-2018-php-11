@@ -15,6 +15,7 @@ class UserTableSeeder extends Seeder
      */
     public function run()
     {
+        factory(User::class)->create(['email'=>'test@example.com']);
         factory(User::class,self::ITEMS_COUNT)->create();
     }
 }

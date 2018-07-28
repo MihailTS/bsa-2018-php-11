@@ -3,6 +3,7 @@
 namespace App\Repository;
 
 use App\Entity\Lot;
+use App\Exceptions\MarketException\LotDoesNotExistException;
 use App\Repository\Contracts\LotRepository as LotRepositoryContract;
 
 class LotRepository implements LotRepositoryContract
@@ -22,9 +23,10 @@ class LotRepository implements LotRepositoryContract
      * @param int $id
      * @return Lot
      */
-    public function getById(int $id) : Lot
+    public function getById(int $id) : ?Lot
     {
-        return Lot::find($id);
+        $lot = Lot::find($id);
+        return $lot;
     }
 
     public function findAll(){

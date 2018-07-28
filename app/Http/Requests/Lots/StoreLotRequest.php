@@ -23,13 +23,11 @@ class StoreLotRequest extends FormRequest
      */
     public function rules()
     {
-        $dateTimeOpen = $this->get('date_time_open');
         return [
             'currency_id' => 'required|integer|min:0',
-            'seller_id' => 'required|integer|min:0',
-            'price' => 'required|numeric|min:0|max:999999.99',
+            'price' => 'required|numeric|max:999999.99',
             'date_time_open' => 'required|integer|min:0|max:2147483647',
-            'date_time_close' => "required|integer|min:$dateTimeOpen|max:2147483647",
+            'date_time_close' => "required|integer|min:0|max:2147483647",
         ];
     }
 
@@ -38,10 +36,6 @@ class StoreLotRequest extends FormRequest
         return (int)$this->get('currency_id');
     }
 
-    public function getSellerId(): int
-    {
-        return (int)$this->get('seller_id');
-    }
 
     public function getDateTimeOpen(): int
     {
