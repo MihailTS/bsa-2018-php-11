@@ -3,6 +3,8 @@
 namespace App\Exceptions;
 
 use Exception;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 
 class Handler extends ExceptionHandler
@@ -13,7 +15,8 @@ class Handler extends ExceptionHandler
      * @var array
      */
     protected $dontReport = [
-        //
+        AuthenticationException::class,
+        AuthorizationException::class,
     ];
 
     /**
@@ -46,6 +49,29 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Exception $exception)
     {
+        if ($exception instanceof  \LogicException)
+        {
+            return $this->errorResponse($exception->getMessage(),400);
+        }
+        if (
+            (
+                $exception instanceof AuthenticationException ||
+                $exception instanceof AuthorizationException
+            )
+            && !$this->isFrontend($request)
+        ) {
+            return $this->errorResponse($exception->getMessage(),403);
+        }
+
         return parent::render($request, $exception);
+    }
+
+    private function errorResponse($message, $code)
+    {
+        return response()->json(['error'=>['message' => $message, 'code' => $code]], $code);
+    }
+    private function isFrontend($request)
+    {
+        return $request->acceptsHtml() && collect($request->route()->middleware())->contains('web');
     }
 }

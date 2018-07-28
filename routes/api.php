@@ -16,3 +16,12 @@ use Illuminate\Http\Request;
 Route::middleware('auth:api')->get('/user', function (Request $request) {
     return $request->user();
 });
+
+Route::prefix('v1')->group(function () {
+    Route::apiResource('/lots', 'Api\LotsController')->only([
+        'index', 'show', 'store'
+    ]);
+
+    Route::post('/trades','Api\TradeController@store');
+});
+

@@ -2,6 +2,7 @@
 
 namespace App\Entity;
 
+use App\User;
 use Illuminate\Database\Eloquent\Model;
 
 class Trade extends Model
@@ -12,4 +13,15 @@ class Trade extends Model
         "user_id",
         "amount"
     ];
+
+    public function lot()
+    {
+        return $this->belongsTo(Lot::class);
+    }
+
+
+    public function buyer()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
